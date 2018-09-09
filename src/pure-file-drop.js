@@ -27,7 +27,6 @@ class PureFileDrop {
 	  this._files_selected = [];
 
 	  this._overrideOptionsProperties(options);
-	  console.log(this.options);
 	  this._build();
 	}
 
@@ -190,8 +189,6 @@ class PureFileDrop {
 	}
 
 	_sendForm(data) {
-		console.log('Requesting...');
-		console.log(this.options);
 		simpleAjax.request({
 			url: this.options.upload_url,
 			method: 'POST',
