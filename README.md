@@ -2,7 +2,11 @@
 Pure File Drop is a JS plugin made only with Vanilla JS. It has no dependencies which helps to make it fastest as possible.
 
 ## Usage
-
+Creating a div with the following class
+```html
+<div class="pure-file-drop"></div>
+```
+And then instantiate a new **PureFileDrop**
 ```javascript
 var pure_file_drop = new PureFileDrop({
   form_selector: 'form[data-file-choose-form]', // default
