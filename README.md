@@ -10,13 +10,13 @@ And then instantiate a new **PureFileDrop**
 ```javascript
 var pure_file_drop = new PureFileDrop({
   form_ajax: {
-		enabled: false,
-	  selector: 'form',
-	},
-	submit_button: {
-		title: 'Send',
-		classes: 'btn btn-success'
-	},
+    enabled: false,
+    selector: 'form',
+  },
+  submit_button: {
+    title: 'Send',
+    classes: 'btn btn-success'
+  },
   file_drop_selector: '.pure-file-drop', // default
   file_drop_area_text: 'Drag and drop the files or click here',
   upload_url: null, // default is the form action attribute
