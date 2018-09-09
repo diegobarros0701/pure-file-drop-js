@@ -22,7 +22,6 @@ var pure_file_drop = new PureFileDrop({
   upload_url: null, // default is the form action attribute
   async_request: true, // default
   param_name: 'file', // default
-  form_ajax: true, // TO DO
   upload_on_drop: false, // TO DO
   select_by_click: true, // default
   onSuccess: function (response) {},
