@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width">
     <title>Pure File Drop</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <link href="../dist/pure-file-drop.min.css" rel="stylesheet" type="text/css" />
+    <link href="../dist/pure-file-drop.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
-    <form id="myForm">
+    <form id="myForm" action="http://localhost:3000/servicos">
       <div class='row'>
         <div class='form-group col-md-12'>
           <label>First name</label>
@@ -21,7 +21,6 @@
         </div>
 
         <div class='form-group col-md-12'>
-          <div class="pure-file-drop"></div>
         </div>
 
         <div class='form-group col-md-12'>
@@ -29,13 +28,21 @@
         </div>
       </div>
     </form>
+          <div class="pure-file-drop"></div>
+
     <script
 	  src="https://code.jquery.com/jquery-3.3.1.js"
 	  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
 	  crossorigin="anonymous"></script>
     <script src="../dist/pure-file-drop.js"></script>
     <script>
-      var pureFileDrop = new PureFileDrop({ form_selector: '#myForm' });
+      var pureFileDrop = new PureFileDrop({
+        form_ajax: {
+          enabled: true,
+          // selector: '#myForm'
+        },
+        // upload_url: 'http://localhost:3000/servicos'
+      });
     </script>
   </body>
 </html>

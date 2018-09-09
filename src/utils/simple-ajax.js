@@ -44,8 +44,6 @@ class SimpleAjax {
 					}
 
 					_this.options.onComplete(response, this);
-
-					console.log(xhr.getAllResponseHeaders());
 				}
 			}
 
