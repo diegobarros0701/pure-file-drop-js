@@ -1,11 +1,11 @@
 import { simpleAjax } from './utils/simple-ajax';
 import { domHandler } from './utils/dom-handler';
-import { eventJS, func } from './utils/event-js';
+import { eventJS } from './utils/event-js';
 
 class PureFileDrop {
 	constructor(options = {}) {
 		this.options = {
-	    form_selector: 'form[data-file-choose-form]', // default
+	      form_selector: 'form[data-file-choose-form]', // default
 	      file_drop_selector: '.pure-file-drop', // default
 	      file_drop_area_text: 'Arraste os arquivos ou clique aqui',
 	      upload_url: null, // default is the form action attribute
@@ -177,3 +177,4 @@ _getFormData() {
 
 }
 
+export { PureFileDrop }
