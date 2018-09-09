@@ -1,5 +1,6 @@
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const path = require('path');
 
 module.exports = function(env, argv) {
@@ -16,7 +17,10 @@ module.exports = function(env, argv) {
 			libraryTarget: 'umd',
 		},
 		optimization: {
-			minimizer: [ new OptimizeCSSAssetsPlugin({}) ]
+			minimizer: [ 
+				new OptimizeCSSAssetsPlugin({}),
+				new UglifyJsPlugin()
+			]
 		},
 		module: {
 			rules: [
@@ -36,8 +40,6 @@ module.exports = function(env, argv) {
 						{
 							loader: MiniCssExtractPlugin.loader
 						},
-						// 'css-loader',
-						// 'sass-loader'
 						{
 							loader: "css-loader"
 						},
