@@ -13,19 +13,20 @@ class PureFileDrop {
 				title: 'Send',
 				classes: 'btn btn-success'
 			},
-	      file_drop_selector: '.pure-file-drop', // default
-	      file_drop_area_text: 'Arraste os arquivos ou clique aqui',
-	      upload_url: null, // default is the form action attribute
-	      async_request: true, // default
-	      param_name: 'file', // default
-	      upload_on_drop: false, // TO DO
-	      select_by_click: true, // default
-	      onSuccess: function (data) {},
-	      onError: function (data) {},
-	      onComplete: function (data) {}
-	  }
+	      	file_drop_selector: '.pure-file-drop', // default
+	      	file_drop_area_text: 'Arraste os arquivos ou clique aqui',
+	      	upload_url: null, // default is the form action attribute
+	      	async_request: true, // default
+	      	param_name: 'file', // default
+	      	upload_on_drop: false, // TO DO
+	      	select_by_click: true, // default
+	      	onSuccess: function (data) {},
+	      	onError: function (data) {},
+	      	onComplete: function (data) {},
+	      	onAddFile: function(files_info) {},
+	      	onRemoveFile: function(files_info) {}
+	  	}
 	  this._files_selected = [];
-
 	  this._overrideOptionsProperties(options);
 	  this._build();
 	}
@@ -155,6 +156,8 @@ class PureFileDrop {
 			this._pure_file_drop_container.removeChild(this._files_dropped_area);
 			this._files_dropped_area = null;
 		}
+
+		this.options.onRemoveFile(this._files_selected);
 	}
 
 	_handleFiles(files, e) {
@@ -185,6 +188,8 @@ class PureFileDrop {
 
 			this._files_dropped_area.appendChild(single_file_wrapper_element);
 			this._files_selected.push(file);
+
+			this.options.onAddFile(this._files_selected);
 		}
 	}
 
