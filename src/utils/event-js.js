@@ -6,7 +6,7 @@ class EventJS {
 		this._element.addEventListener(eventName, (e) => {
 			let element_selector = document.querySelector(selector);
 
-			if(this._isTheTarget(e.target, element_selector)) {
+			if(this._isTheTarget(e.target, element_selector, selector)) {
 				callback(e);
 			}
 		})
@@ -19,8 +19,8 @@ class EventJS {
 	}
 
 	// To be the target, needs to be the same as the target and must be child of the element caller
-	_isTheTarget(target, element_selector) {
-		return target == element_selector && domHandler.isParent(this._element, element_selector);
+	_isTheTarget(target, element_selector, selector) {
+		return target.matches(selector) && domHandler.isParent(this._element, element_selector);
 	}
 
 }

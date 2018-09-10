@@ -24,11 +24,23 @@ class PureFileDrop {
 	      	onError: function (data) {},
 	      	onComplete: function (data) {},
 	      	onAddFile: function(files_info) {},
-	      	onRemoveFile: function(files_info) {}
+	      	onRemoveFile: function(files_info) {},
+	      	initialFiles: [],
+	      	remove_options: {
+				url: null,
+				method: 'DELETE',
+				data: null
+			},
+			beforeRemove: function(options) {}
 	  	}
 	  this._files_selected = [];
 	  this._overrideOptionsProperties(options);
 	  this._build();
+	}
+
+	setInitialFiles(initialFiles) {
+		this.options.initialFiles = initialFiles;
+		this._updateInitialFiles();
 	}
 
 	_build() {
@@ -58,39 +70,51 @@ class PureFileDrop {
 				this._form.action = this.options.upload_url;
 			else
 				this.options.upload_url = this._form.action;
-
 		}
+
+		this._updateInitialFiles();
 
 		this._initializeEvents();
 	}
 
+	_updateInitialFiles() {
+		document.querySelectorAll('.single-file').forEach((single_file) => {
+			single_file.parentNode.removeChild(single_file);
+		})
+
+		if(typeof this.options.initialFiles === 'object') {
+
+			simpleAjax.request({
+				url: this.options.initialFiles.url,
+				method: this.options.initialFiles.method,
+				data: this.options.initialFiles.params,
+				returnType: 'json',
+				async: false,
+				onSuccess: (response) => {
+					console.log(typeof JSON.parse(response));
+					this.options.initialFiles = JSON.parse(response);
+				}
+			})
+		}
+
+		this.options.initialFiles.forEach((file) => {
+			console.log(file);
+			this._createFileInfo(file.name, file.id, file.remove_options);
+		})
+	}
+
 	_overrideOptionsProperties(custom_options, keys = []) {
 		for (var option_key in custom_options) {
-			if(typeof custom_options[option_key] === 'object') {
-				keys.push(`"${option_key}"`)
-				keys = this._overrideOptionsProperties(custom_options[option_key], keys) 
-			} else {
-				keys.push(`"${option_key}"`);
-
-				let compound_key = keys.join('][');
-				let command = `this.options[${compound_key}] = custom_options["${option_key}"]`;
-				let exist_property = eval(`this.options[${compound_key}]`) !== undefined;
-
-				if (exist_property)
-					eval(command);
-				
-				keys = keys.slice(0, keys.length - 1);
-			}
+			if (this.options.hasOwnProperty(option_key))
+				this.options[option_key] = custom_options[option_key];
 		}
-		keys = keys.slice(0, keys.length - 1);
-
-		return keys;
 	}
 
 	_createSubmitButton() {
 		this._submit_button = document.createElement('button');
 		this._submit_button.innerText = this.options.submit_button.title;
 		this._submit_button.className = this.options.submit_button.classes;
+
 		this._pure_file_drop_container.appendChild(this._submit_button);
 	}
 
@@ -130,7 +154,7 @@ class PureFileDrop {
 		});
 
 		eventJS.node(this._pure_file_drop_container).on('click', 'button[data-remove-file-drop]', (e) => {
-			this._removeFile(e);
+			this._removeFile(e, e.target.dataset.removeId);
 		})
 
 		if(this.options.select_by_click) {
@@ -146,7 +170,33 @@ class PureFileDrop {
 		}
 	}
 
-	_removeFile(e) {
+	_removeFile(e, remove_id) {
+		if(remove_id) {
+			let dataset = e.target.dataset;
+			let url = dataset.removeUrl ? dataset.removeUrl : this.options.remove_options.url;
+			let method = dataset.method ? dataset.method : this.options.remove_options.method;
+			let params = dataset.params ? JSON.parse(dataset.params) : this.options.remove_options.params;
+
+			if(!params.id && dataset.removeId) params.id = dataset.removeId;
+
+			console.log(params);
+			simpleAjax.request({
+				url: url,
+				method: method,
+				data: {teste:'123'},
+				onSuccess: (response) => {
+					this._removeFileDomInfo(e);
+				},
+				onError: (response) => {
+					console.log("Can't remove");
+				}
+			});
+		} else {
+			this._removeFileDomInfo(e);
+		}
+	}
+
+	_removeFileDomInfo(e) {
 		let parent_index = domHandler.index(e.target.parentNode);
 
 		this._files_selected.splice(parent_index, 1);
@@ -160,33 +210,76 @@ class PureFileDrop {
 		this.options.onRemoveFile(this._files_selected);
 	}
 
+	_createFileInfo(filename, id = null, remove_options = null) {
+		let filename_span = document.createElement('span');
+		filename_span.innerText = filename;
+
+		let btn_remove_file_drop = document.createElement('button');
+		btn_remove_file_drop.setAttribute('type', 'button');
+		btn_remove_file_drop.className = 'btn btn-danger';
+		btn_remove_file_drop.innerText = 'Remover';
+		btn_remove_file_drop.dataset.removeFileDrop = 'remove-file-drop';
+
+		if(remove_options) {
+			if(remove_options.url) {
+				btn_remove_file_drop.dataset.removeUrl = remove_options.url;
+			}
+
+			if(remove_options.method) {
+				btn_remove_file_drop.dataset.method = remove_options.method;
+			}
+
+			if(remove_options.params) {
+				btn_remove_file_drop.dataset.params = JSON.stringify(remove_options.params);
+			}
+		}
+
+		if(id) { 
+			btn_remove_file_drop.dataset.removeId = id;
+		}
+
+		let single_file_wrapper_element = document.createElement('div');
+		single_file_wrapper_element.className = 'single-file';
+		single_file_wrapper_element.appendChild(filename_span);
+		single_file_wrapper_element.appendChild(btn_remove_file_drop);
+
+		if(!this._files_dropped_area) {
+			this._files_dropped_area = document.createElement('div');
+			this._files_dropped_area.className = 'files-dropped';
+			this._pure_file_drop_container.appendChild(this._files_dropped_area);
+		}
+
+		this._files_dropped_area.appendChild(single_file_wrapper_element);
+	}
+
 	_handleFiles(files, e) {
 		e.preventDefault();
 
 		for(let i = 0; i < files.length; i++) {
 			let file = files[i];
 
-			let filename_span = document.createElement('span');
-			filename_span.innerText = file.name;
+			// let filename_span = document.createElement('span');
+			// filename_span.innerText = file.name;
 
-			let btn_remove_file_drop = document.createElement('button');
-			btn_remove_file_drop.setAttribute('type', 'button');
-			btn_remove_file_drop.className = 'btn btn-danger';
-			btn_remove_file_drop.innerText = 'Remover';
-			btn_remove_file_drop.dataset.removeFileDrop = 'remove-file-drop';
+			// let btn_remove_file_drop = document.createElement('button');
+			// btn_remove_file_drop.setAttribute('type', 'button');
+			// btn_remove_file_drop.className = 'btn btn-danger';
+			// btn_remove_file_drop.innerText = 'Remover';
+			// btn_remove_file_drop.dataset.removeFileDrop = 'remove-file-drop';
 
-			let single_file_wrapper_element = document.createElement('div');
-			single_file_wrapper_element.className = 'single-file';
-			single_file_wrapper_element.appendChild(filename_span);
-			single_file_wrapper_element.appendChild(btn_remove_file_drop);
+			// let single_file_wrapper_element = document.createElement('div');
+			// single_file_wrapper_element.className = 'single-file';
+			// single_file_wrapper_element.appendChild(filename_span);
+			// single_file_wrapper_element.appendChild(btn_remove_file_drop);
 
-			if(!this._files_dropped_area) {
-				this._files_dropped_area = document.createElement('div');
-				this._files_dropped_area.className = 'files-dropped';
-				this._pure_file_drop_container.appendChild(this._files_dropped_area);
-			}
+			// if(!this._files_dropped_area) {
+			// 	this._files_dropped_area = document.createElement('div');
+			// 	this._files_dropped_area.className = 'files-dropped';
+			// 	this._pure_file_drop_container.appendChild(this._files_dropped_area);
+			// }
 
-			this._files_dropped_area.appendChild(single_file_wrapper_element);
+			// this._files_dropped_area.appendChild(single_file_wrapper_element);
+			this._createFileInfo(file.name);
 			this._files_selected.push(file);
 
 			this.options.onAddFile(this._files_selected);
