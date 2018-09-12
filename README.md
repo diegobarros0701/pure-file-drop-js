@@ -26,49 +26,150 @@ var pure_file_drop = new PureFileDrop({
   select_by_click: true, // default
   onSuccess: function (response) {},
   onError: function (response) {},
-  onComplete: function (response) {}
+  onComplete: function (response) {},
+  onAddFile: function(files_info) {},
+  onRemoveFile: function(files_info) {},
+  initialFiles: {
+    url: null,
+    method: 'GET',
+    params: null,
+    onSuccess: function(data) {},
+    onError: function(data) {}
+   },
+   remove_options: {
+     url: null,
+     method: 'DELETE',
+     params: null,
+     // onSuccess: function(data) {}, same as onRemoveFile()
+     onError: function(data) {}
+   },
 })
 ```
 
-### Form ajax
-By default this option is setted to **false**. This means that the files will not be sended along with the form. You'll have to send then separately. It is useful when you wanna upload files before send the form.  
+#### # options.form_ajax
+By default **options.form_ajax.enabled** is setted to **false**. This means that the files will not be sended along with the form. You'll have to send then separately. It is useful when you wanna upload files before send the form.  
 Set to **true** if the files must be sended only when submit the form. In this case the data of your form and the files will be sended to the server.
 
-#### Submit button
-This option is only if you set the **form_ajax.enabled** to **false**, then a button will appear for your submit your files.
+#### # options.submit_button
+This option is only if you set the **options.form_ajax.enabled** to **false**, then a button will appear for your submit your files.
 
-### Events
-You can set the events when create a new **PureFileDrop** or after that.  
-First one
+#### # options.initialFiles
+Set this option if you have initial files to load. If you set this, you must return a JSON.
+Example:
 ```javascript
-var pure_file_drop = new PureFileDrop({
-  // Another options...
-  onSuccess: function (response) {},
-  onError: function (response) {},
-  onComplete: function (response) {}
-})
-```  
-And second one
+initialFiles: {
+  url: 'https://mywebsite/attachments.json',
+  method: 'GET',
+  params: {
+    service_id: 23
+  },
+  onSuccess: function(response) {
+    console.log("Files loaded!");
+  },
+  onError: function(response) {
+    console.log("Can't get the files.")
+  }
+}
+```
+
+The JSON structure is the following
 ```javascript
-var pure_file_drop = new PureFileDrop();
-pure_file_drop.onSuccess(function(response) {
- // Do something...
-})
+[
+  {
+    name: 'first.txt',
+    remove_options: {
+      url: 'https://mywebsite/attachments',
+      method: 'DELETE',
+      params: {
+        service_id: 23
+      },
+      onSuccess: function(response) {
+        // Do something...
+      },
+      onError: function(response) {
+        // Do something...
+      }
+    }
+  },
+  {
+    name: 'second.png',
+    remove_options: {
+      url: 'https://mywebsite/attachments'
+    }
+  },
+  // more files...
+]
+```
 
-pure_file_drop.onError(function(response) {
- // Do something...
-})
+The property **remove_options** of the JSON is not required. If you do not set it, the default will be the settings inside the **options.remove_options** property.
 
-pure_file_drop.onComplete(function(response) {
- // Do something...
-})
-```  
+#### # options.remove_options
+```javascript
+remove_options: {
+  url: 'https://myawesomewebsite.com/attachments',
+  method: 'DELETE',
+  params: {
+    authenticity_token: 'jSAs=J=++SF+C123+AAMnAOLLOpswqq0==**axAsT'
+  },
+  onSuccess: function(response) {
+    // Do something...
+  },
+  onError: function(response) {
+    // Do something...
+  }
+}
+```
+With that options setted you can override them in **remove_options** of the JSON just as shown before or you can use then and set only the necessary in **remove_options** of the JSON. Like that:
+```javascript
+[
+  {
+    name: 'MyAwesomeFile.txt',
+    params: {
+      id: 1
+    }
+  },
+  {
+    name: 'MyAwesomePhoto.jpg',
+    params: {
+      id: 2
+    }
+  },
+  {
+    name: 'MyAwesomeMusic.mp3',
+    params: {
+      id: 3
+    }
+  },
+  // And more...
+]
+```
 
-#### onSuccess(response)
+## Events
+List of available events
+
+#### # options.onSuccess(response)
 Called after the form are sended or the files are uploaded successfully.
 
-#### onError(response)
+#### # options.onError(response)
 Called after after form are sended or the files are uploaded occurs an error.
 
-#### onComplete(response)
+#### # options.onComplete(response)
 Called after the form are sended or the files are uploaded, regardless of error or success.
+
+#### # options.initialFiles.onSuccess(response)
+Called if the request to get the initial files was successfully
+
+#### # options.initialFiles.onError(response)
+Called if the request to get the initial files was not successfully
+
+#### # options.remove_options.onSuccess(response)
+Called if the request to remove a file was successfully
+
+#### # options.remove_options.onError(response)
+Called if the request to remove a file was not successfully
+
+#### # (initialFiles JSON structure) remove_options.onSuccess(response)
+Called if the request to remove an specific file was successfully
+
+#### # (initialFiles JSON structure) remove_options.onError(response)
+Called if the request to remove an specific file was not successfully
