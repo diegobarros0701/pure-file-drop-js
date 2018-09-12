@@ -123,20 +123,26 @@ With that options setted you can override them in **remove_options** of the JSON
 [
   {
     name: 'MyAwesomeFile.txt',
-    params: {
-      id: 1
+    remove_options: {
+      params: {
+        id: 1
+      }
     }
   },
   {
     name: 'MyAwesomePhoto.jpg',
-    params: {
-      id: 2
+    remove_options: {
+      params: {
+        id: 2
+      }
     }
   },
   {
     name: 'MyAwesomeMusic.mp3',
-    params: {
-      id: 3
+    remove_options: {
+      params: {
+        id: 3
+      }
     }
   },
   // And more...
