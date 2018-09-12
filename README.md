@@ -181,4 +181,5 @@ Called if the request to remove an specific file was successfully
 Called if the request to remove an specific file was not successfully
 
 ## To do
-* Permit to set directly an array with the values to the property **options.initialFiles**.
+* Allow to set directly an array with the values to the property **options.initialFiles**.
+* Allow to upload a file on drop.
