@@ -179,3 +179,6 @@ Called if the request to remove an specific file was successfully
 
 #### # (initialFiles JSON structure) remove_options.onError(response)
 Called if the request to remove an specific file was not successfully
+
+## To do
+* Permit to set directly an array with the values to the property **options.initialFiles**.
