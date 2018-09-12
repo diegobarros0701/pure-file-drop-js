@@ -151,6 +151,9 @@ With that options setted you can override them in **remove_options** of the JSON
 ]
 ```
 
+#### # options.upload_on_drop
+Set to **true** if you want to send the files to server when dropping them.
+
 ## Events
 List of available events
 
