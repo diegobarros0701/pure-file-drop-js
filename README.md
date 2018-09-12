@@ -28,7 +28,7 @@ var pure_file_drop = new PureFileDrop({
   onError: function (response) {},
   onComplete: function (response) {},
   onAddFile: function(files_info) {},
-  onRemoveFile: function(files_info) {},
+  onRemoveFile: function(files_info, response) {},
   initialFiles: {
     url: null,
     method: 'GET',
@@ -40,7 +40,6 @@ var pure_file_drop = new PureFileDrop({
      url: null,
      method: 'DELETE',
      params: null,
-     onSuccess: function(response) {}
      onError: function(response) {}
    },
 })
@@ -155,6 +154,13 @@ Called after after form are sended or the files are uploaded occurs an error.
 
 #### # options.onComplete(response)
 Called after the form are sended or the files are uploaded, regardless of error or success.
+
+#### # options.onAddFile(files_info)
+Called after add a file
+
+#### # options.onRemoveFile(files_info, response)
+Called after remove a file.  
+**Important:** The param **response** will only be available if you remove a file from the server, otherwise **response** will return **undefined**.
 
 #### # options.initialFiles.onSuccess(response)
 Called if the request to get the initial files was successfully
