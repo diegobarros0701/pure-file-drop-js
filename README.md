@@ -33,15 +33,15 @@ var pure_file_drop = new PureFileDrop({
     url: null,
     method: 'GET',
     params: null,
-    onSuccess: function(data) {},
-    onError: function(data) {}
+    onSuccess: function(response) {},
+    onError: function(response) {}
    },
    remove_options: {
      url: null,
      method: 'DELETE',
      params: null,
-     // onSuccess: function(data) {}, same as onRemoveFile()
-     onError: function(data) {}
+     onSuccess: function(response) {}
+     onError: function(response) {}
    },
 })
 ```
