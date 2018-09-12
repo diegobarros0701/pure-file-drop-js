@@ -17,13 +17,13 @@ var pure_file_drop = new PureFileDrop({
     title: 'Send',
     classes: 'btn btn-success'
   },
-  file_drop_selector: '.pure-file-drop', // default
+  file_drop_selector: '.pure-file-drop',
   file_drop_area_text: 'Drag and drop the files or click here',
-  upload_url: null, // default is the form action attribute
-  async_request: true, // default
-  param_name: 'file', // default
+  upload_url: null,
+  async_request: true,
+  param_name: 'file',
   upload_on_drop: false, // TO DO
-  select_by_click: true, // default
+  select_by_click: true,
   onSuccess: function (response) {},
   onError: function (response) {},
   onComplete: function (response) {},
