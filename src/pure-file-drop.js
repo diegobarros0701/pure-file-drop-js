@@ -1,6 +1,7 @@
 import { simpleAjax } from './utils/simple-ajax';
 import { domHandler } from './utils/dom-handler';
 import { eventJS } from './utils/event-js';
+import { objectHandler } from './utils/object-handler';
 
 class PureFileDrop {
 	constructor(options = {}) {
@@ -24,17 +25,23 @@ class PureFileDrop {
 	      	onError: function (data) {},
 	      	onComplete: function (data) {},
 	      	onAddFile: function(files_info) {},
-	      	onRemoveFile: function(files_info) {},
-	      	initialFiles: [],
+	      	onRemoveFile: function(files_info, response) {},
+	      	initialFiles: {
+				url: null,
+				method: 'DELETE',
+				params: null,
+				onSuccess: function(data) {}, // request success
+				onError: function(data) {} // request error
+			},
 	      	remove_options: {
 				url: null,
 				method: 'DELETE',
-				data: null
+				params: null,
+				onError: function(data) {}
 			},
-			beforeRemove: function(options) {}
 	  	}
 	  this._files_selected = [];
-	  this._overrideOptionsProperties(options);
+	  objectHandler.mergeObjects(this.options, options);
 	  this._build();
 	}
 
@@ -73,7 +80,6 @@ class PureFileDrop {
 		}
 
 		this._updateInitialFiles();
-
 		this._initializeEvents();
 	}
 
@@ -81,33 +87,28 @@ class PureFileDrop {
 		document.querySelectorAll('.single-file').forEach((single_file) => {
 			single_file.parentNode.removeChild(single_file);
 		})
-
-		if(typeof this.options.initialFiles === 'object') {
-
+		// console.log(this.options.initialFiles.url);
+		// if(typeof this.options.initialFiles === 'object') {
+			// console.log(this.options.initialFiles.url);
 			simpleAjax.request({
 				url: this.options.initialFiles.url,
 				method: this.options.initialFiles.method,
 				data: this.options.initialFiles.params,
-				returnType: 'json',
-				async: false,
+				responseType: 'json',
+				async: this.options.initialFiles.async,
 				onSuccess: (response) => {
-					console.log(typeof JSON.parse(response));
-					this.options.initialFiles = JSON.parse(response);
+					this._initialFiles = response;
+				},
+				onError: (response) => {
+					console.error("Can't get the initial files");
 				}
 			})
-		}
+		// }
 
-		this.options.initialFiles.forEach((file) => {
-			console.log(file);
-			this._createFileInfo(file.name, file.id, file.remove_options);
+
+		this._initialFiles.forEach((file) => {
+			this._createFileInfo(file.name, file.id, file.remove_options, true);
 		})
-	}
-
-	_overrideOptionsProperties(custom_options, keys = []) {
-		for (var option_key in custom_options) {
-			if (this.options.hasOwnProperty(option_key))
-				this.options[option_key] = custom_options[option_key];
-		}
 	}
 
 	_createSubmitButton() {
@@ -154,7 +155,8 @@ class PureFileDrop {
 		});
 
 		eventJS.node(this._pure_file_drop_container).on('click', 'button[data-remove-file-drop]', (e) => {
-			this._removeFile(e, e.target.dataset.removeId);
+			let remove_request = e.target.dataset.removeRequest ? true : false;
+			this._removeFile(e, remove_request);
 		})
 
 		if(this.options.select_by_click) {
@@ -170,25 +172,23 @@ class PureFileDrop {
 		}
 	}
 
-	_removeFile(e, remove_id) {
-		if(remove_id) {
+	_removeFile(e, remove_request) {
+		if(remove_request) {
 			let dataset = e.target.dataset;
 			let url = dataset.removeUrl ? dataset.removeUrl : this.options.remove_options.url;
 			let method = dataset.method ? dataset.method : this.options.remove_options.method;
 			let params = dataset.params ? JSON.parse(dataset.params) : this.options.remove_options.params;
 
-			if(!params.id && dataset.removeId) params.id = dataset.removeId;
-
-			console.log(params);
 			simpleAjax.request({
 				url: url,
 				method: method,
-				data: {teste:'123'},
+				data: params,
 				onSuccess: (response) => {
-					this._removeFileDomInfo(e);
+					this._removeFileDomInfo(e, response);
 				},
 				onError: (response) => {
-					console.log("Can't remove");
+					console.log(this.options.remove_options);
+					this.options.remove_options.onError(response);
 				}
 			});
 		} else {
@@ -196,7 +196,7 @@ class PureFileDrop {
 		}
 	}
 
-	_removeFileDomInfo(e) {
+	_removeFileDomInfo(e, response) {
 		let parent_index = domHandler.index(e.target.parentNode);
 
 		this._files_selected.splice(parent_index, 1);
@@ -207,10 +207,10 @@ class PureFileDrop {
 			this._files_dropped_area = null;
 		}
 
-		this.options.onRemoveFile(this._files_selected);
+		this.options.onRemoveFile(this._files_selected, response);
 	}
 
-	_createFileInfo(filename, id = null, remove_options = null) {
+	_createFileInfo(filename, id = null, remove_options = null, remove_request = false) {
 		let filename_span = document.createElement('span');
 		filename_span.innerText = filename;
 
@@ -219,6 +219,10 @@ class PureFileDrop {
 		btn_remove_file_drop.className = 'btn btn-danger';
 		btn_remove_file_drop.innerText = 'Remover';
 		btn_remove_file_drop.dataset.removeFileDrop = 'remove-file-drop';
+
+		if(remove_request) {
+			btn_remove_file_drop.dataset.removeRequest = true;
+		}
 
 		if(remove_options) {
 			if(remove_options.url) {
@@ -258,27 +262,6 @@ class PureFileDrop {
 		for(let i = 0; i < files.length; i++) {
 			let file = files[i];
 
-			// let filename_span = document.createElement('span');
-			// filename_span.innerText = file.name;
-
-			// let btn_remove_file_drop = document.createElement('button');
-			// btn_remove_file_drop.setAttribute('type', 'button');
-			// btn_remove_file_drop.className = 'btn btn-danger';
-			// btn_remove_file_drop.innerText = 'Remover';
-			// btn_remove_file_drop.dataset.removeFileDrop = 'remove-file-drop';
-
-			// let single_file_wrapper_element = document.createElement('div');
-			// single_file_wrapper_element.className = 'single-file';
-			// single_file_wrapper_element.appendChild(filename_span);
-			// single_file_wrapper_element.appendChild(btn_remove_file_drop);
-
-			// if(!this._files_dropped_area) {
-			// 	this._files_dropped_area = document.createElement('div');
-			// 	this._files_dropped_area.className = 'files-dropped';
-			// 	this._pure_file_drop_container.appendChild(this._files_dropped_area);
-			// }
-
-			// this._files_dropped_area.appendChild(single_file_wrapper_element);
 			this._createFileInfo(file.name);
 			this._files_selected.push(file);
 
@@ -304,11 +287,10 @@ class PureFileDrop {
 	}
 
 	_getFormData() {
-		let _this = this;
-		let formData = _this.options.form_ajax.enabled ? new FormData(_this._form) : new FormData();
+		let formData = this.options.form_ajax.enabled ? new FormData(this._form) : new FormData();
 
-		_this._files_selected.forEach(function (file_selected) {
-			formData.append(_this.options.param_name, file_selected);
+		this._files_selected.forEach((file_selected) => {
+			formData.append(this.options.param_name, file_selected);
 		})
 
 		return formData;

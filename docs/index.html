@@ -39,29 +39,21 @@
       var pureFileDrop = new PureFileDrop({
         form_ajax: {
           enabled: true,
-          selector: '#myForm'
         },
-        // initialFiles: [
-        //   {
-        //     id: 1,
-        //     name: 'Teste.png',
-        //     remove_options: {
-        //       url: 'http://localhost:3000/servicos/24',
-        //       // method: 'DELETE',
-        //       // params: {
-        //         // title: 'Test'
-        //         // authenticity_token: document.querySelector('[name="csrf-token"]').getAttribute('content')
-        //       // }
-        //     }
-        //   }
-        // ],
-        initialFiles: 'http://localhost:3000/anexos?id=30',
+        initialFiles: {
+          url: 'http://localhost:3000/anexos?id=32',
+          method: 'GET',
+          params: {
+            teste: 123
+          },
+          async: false
+        },
         remove_options: {
-          url: 'http://localhost:3000/servicos',
+          url: 'http://localhost:3000/anexo',
           method: 'DELETE',
           params: {
-            authenticity_token: `document.querySelector('[name="csrf-token"]').getAttribute('content')`
-          }
+            authenticity_token: `tESFSDF23RFEFSDFSFSDFsfFFFf`
+          },
         }
         // upload_url: 'http://localhost:3000/servicos'
       });
